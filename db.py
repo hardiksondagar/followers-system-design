@@ -1,18 +1,9 @@
 import time
 import psycopg2
-from psycopg2.pool import SimpleConnectionPool
+import settings
 
-
-
-
-# Define a dictionary of shard connections
-no_shards = 10
-base_path = "~/Work/system-design-cohort/data/pg_shards"
-shard_connections = {
-    f"shard{i}": {"host": "localhost", "port": f"5432{i}"} for i in range(no_shards)
-}
-
-# Define a list of shard keys using shard_connections key
+no_shards = settings.no_shards
+shard_connections = settings.shard_connections
 shard_keys = list(shard_connections.keys())
 
 def timer(func):
@@ -41,21 +32,6 @@ def get_shard_connection(shard_key):
         dbname=conn_params.get("dbname", "postgres"),
     )
     return conn
-
-connection_pools = {}
-for shard_key, conn_params in shard_connections.items():
-    connection_pools[shard_key] = SimpleConnectionPool(
-        minconn=2,
-        maxconn=5,
-        host=conn_params.get("host", "localhost"),
-        port=conn_params.get("port", 5432),
-        user=conn_params.get("user", "postgres"),
-        password=conn_params.get("password", "postgres"),
-        dbname=conn_params.get("dbname", "postgres")
-    )
-
-def get_shard_connection_from_pool(shard_key):
-    pass
 
 
 @timer

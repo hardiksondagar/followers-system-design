@@ -16,11 +16,11 @@ def callback(ch, method, properties, body):
     """
     print("recieved message", method.delivery_tag, "on queue", method.routing_key)
     data = str(body, "utf-8")
-    shard_key = method.routing_key
     query = query_template.format(data)
+    shard_key = method.routing_key
     db.query_shard(query, shard_key, commit=True)
-    # insert_to_db(data, shard_key)
     ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 def consume_messages(queue_name):
     """
@@ -37,6 +37,7 @@ def consume_messages(queue_name):
     )
     channel.start_consuming()
     connection.close()
+
 
 if __name__ == '__main__':
     shard_keys = db.shard_keys
